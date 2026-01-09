@@ -3334,7 +3334,7 @@ remixUpworkLine = toGlyph 0XF674
 -- >   _ <- ".ri"
 -- >   wds <- AT.many1 parseWord
 -- >   skipHoriz
--- >   AT.char '{'
+-- >   _ <- AT.char '{'
 -- >   skipHoriz
 -- >   _ <- "content:"
 -- >   skipHoriz
@@ -3342,17 +3342,19 @@ remixUpworkLine = toGlyph 0XF674
 -- >   hexNum <- T.toUpper <$> AT.takeWhile isHexDigit
 -- >   _ <- "\";"
 -- >   skipHoriz
--- >   AT.char '}'
--- >   return $ "remix" <> (mconcat wds) <> " = toGlyph 0x" <> hexNum <> "\n"
+-- >   _ <- AT.char '}'
+-- >   return $ "remix" <> (mconcat wds) <> " = toGlyph 0X" <> hexNum <> "\n"
 -- >   
 -- > parseDefs :: AT.Parser BB.Builder
--- > parseDefs = mconcat <$> AT.sepBy1' (makeBuilder <$> parseDef) AT.skipSpace
+-- > parseDefs = do
+-- >   AT.skipSpace  
+-- >   mconcat <$> AT.sepBy1' (makeBuilder <$> parseDef) AT.skipSpace
 -- >   where makeBuilder = BB.byteString . TE.encodeUtf8
 -- > 
 -- > runConvert :: FilePath -> FilePath -> IO ()
 -- > runConvert inFile outFile = do
--- >   bstr <- TE.decodeUtf8 <$> BS.readFile inFile
--- >   let eRslt = AT.parseOnly parseDefs bstr
+-- >   txt <- TE.decodeUtf8 <$> BS.readFile inFile
+-- >   let eRslt = AT.parseOnly parseDefs txt
 -- >   case eRslt of
 -- >     Left err   -> putStrLn ("Error: " ++ err)
 -- >     Right rslt -> BB.writeFile outFile rslt
